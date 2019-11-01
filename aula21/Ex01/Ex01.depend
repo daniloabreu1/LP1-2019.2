@@ -1,0 +1,13 @@
+# depslib dependency file v1.0
+1572617156 source:d:\google drive\trabalho\uepb\2019-2\lp1\códigos\aula21\ex01\main.c
+	<stdio.h>
+	"ponto.h"
+
+1572616649 d:\google drive\trabalho\uepb\2019-2\lp1\códigos\aula21\ex01\ponto.h
+
+1572617166 source:d:\google drive\trabalho\uepb\2019-2\lp1\códigos\aula21\ex01\ponto.c
+	<stdlib.h>
+	<stdio.h>
+	<math.h>
+	"ponto.h"
+
