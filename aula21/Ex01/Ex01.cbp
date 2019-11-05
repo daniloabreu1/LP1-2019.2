@@ -34,6 +34,13 @@
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="menu.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ponto.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ponto.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
