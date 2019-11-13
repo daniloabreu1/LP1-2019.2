@@ -1,0 +1,290 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+/*
+AUTOR: DANILO ABREU SANTOS
+ESTE PROGRAMA IMPLEMENTA A ESTRUTURA DE DADOS PILHA DE FORMA DINÂMICA.
+
+A PILHA SEGUE A REGRA LIFO (LAST IN, FIRST OUT), OU SEJA, O ÚLTIMO ELEMENTO INSERIDO
+SERÁ O PRIMEIRO A SER REMOVIDO.
+
+A MANIPULAÇÃO DA PILHA SE DARÁ APENAS EM SEU TOPO: OS NOVOS ELEMENTOS SERÃO INSERIDOS NO TOPO DA PILHA,
+ASSIM COMO A SUA REMOÇÃO
+
+NO PROGRAMA ABAIXO SAO IMPLEMENTADAS AS TAREFAS DE:
+
+--> CRIAR UMA PILHA
+--> INSERIR ELEMENTOS EM UMA PILHA
+--> REMOVER ELEMENTOS EM UMA PILHA
+--> VERIpiCAR SE A PILHA ESTÁ VAZIA
+--> VERIpiCAR A QUANTIDADE DE ELEMENTOS DA PILHA
+--> IMPRIMIR A PILHA
+--> LIBERAR O ESPAÇO DE MEMÓRIA ALOCADA PARA PILHA E SEUS ELEMENTOS
+
+*/
+int matricula =1000;//VARIAVEL GLOBAL PARA MATRICULA
+
+//ESTRUTURA QUE ARMAZENARA OS DADOS DO ALUNO
+typedef struct
+{
+    char nome[31];
+    int mat;
+    float n1, n2,media;
+}ALUNO;
+
+//ESTRUTURA QUE RECEBERÁ O CONJUNTO DE DADOS DO ALUNO E O ENDEREÇO DO PROXIMO ELEMENTO DA PILHA (O ALUNO A SEGUIR)
+typedef struct elemento
+{
+    ALUNO dados;//AQUI, SERÁ ARMAZENADOS OS DADOS DO ALUNO
+    struct elemento *prox;//ESTE CAMPO SERÁ UM PONTEIRO PARA O PRÓXIMO ELEMENTO DA PILHA (QUE TAMBÉM SERÁ DO "TIPO" STRUCT ELEMENTO)
+} ELEM;
+
+//A ESTRUTURA ABAIXO SERÁ O TOPO DA PILHA
+typedef struct
+{
+    ELEM *topo; //ESTRUTURA QUE RECEBERÁ O ÚLTIMO ELEMENTO (DADOS DO ALUNO E PROXIMO ELEMENTO) DA PILHA
+} PILHA;
+
+//FUNÇÃO QUE RETORNA O ENDEREÇO DE MEMÓRIA DE UMA PILHA VAZIA.
+PILHA* criar()  //CRIA UMA FUNÇÃO DO TIPO STRUCT PILHA
+{
+    PILHA* pi = (PILHA*) malloc(sizeof(PILHA)); //ALOCA O ESPAÇO NA MEMÓRIA
+    if(pi != NULL) //SE O SISTEMA OPERACIONAL ALOCAR, ENTRA NO IF.
+    {
+        pi->topo= NULL; //INICIA O TOPO COM NULL
+    }
+    return pi;//RETORNA O ENDEREÇO DA PILHA
+}
+
+void novoAluno(ALUNO *al) //RECEBE COMO PARÂMETRO O ENDEREÇO DA ESTRUTURA ALUNO
+{
+    al->mat=matricula++;
+    printf("MATRICULA: %d\n",al->mat);
+    printf("DIGITE NOME: ");
+    fflush(stdin);//LIMPA O BUFFER DO TECLADO (COMANDO PARA WINDOWS)
+    gets(al->nome);//ADICIONA O CONTEÚDO AO CAMPO NOME
+    strupr(al->nome);//SALVA O NOME EM MAIÚSCULO
+    printf("DIGITE A NOTA 1: ");
+    scanf("%f",&al->n1);//ADICIONA O CONTEÚDO AO CAMPO NOTA 1
+    printf("DIGITE A NOTA 2: ");
+    scanf("%f",&al->n2);//ADICIONA O CONTEÚDO AO CAMPO NOTA 2
+    al->media=(al->n1+al->n2)/2.0;
+}
+
+
+//FUNÇÃO QUE IRÁ INSERIR UM NOVO ELEMENTO NA MINHA PILHA
+void inserir(PILHA *pi, ALUNO al) //COMO PARÂMETROS DA FUNÇÃO, TEREMOS: O ENDEREÇO DA PILHA ; E OS DADOS DO ALUNO (QUE SERÃO ARMAZENADOS NA MINHA STRUCT ALUNO)
+{
+    if(pi==NULL) //CASO A PILHA NAO TENHA SIDO ALOCADA...
+    {
+        printf("\nERRO DE ALOCACAO\n");
+    }
+    else  //PILHA ALOCADA
+    {
+        ELEM *no = (ELEM*) malloc(sizeof(ELEM));//NESTE PASSO, SERÁ CRIADO UM NOVO ELEMENTO VAZIO (CRIADO APENAS O ESPAÇO NA MEMÓRIA)
+        if(no != NULL) //CASO A ALOCAÇÃO DESTE NOVO ELEMENTO TENHA SIDO FEITA
+        {
+            no->dados= al;//O CAMPO DADOS, DA MINHA ESTRUTURA ELEMENTO RECEBE OS DADOS DO ALUNO PASSADO POR PARÂMETRO DA FUNÇÃO
+
+            //NO IF ABAIXO, TEREMOS AS DUAS POSSIBILIDADES DE INSERIR O NOVO ELEMENTO: PILHA VAZIA OU PILHA COM ELEMENTOS
+            if(pi->topo==NULL) //SE O CAMPO TOPO DA MINHA PILHA APONTAR PARA NULL, SIGNIpiCA QUE MINHA PILHA ESTARÁ VAZIA
+            {
+                no->prox= NULL;//COMO ESTE ELEMENTO É O PRIMEIRO A SER INSERIDO, O PRÓXIMO DESTE ELEMENTO APONTARÁ PARA NULL
+
+            }
+            else  //SE A MINHA PILHA NAO FOR VAZIA...
+            {
+                no->prox= pi->topo;
+                //MAS O CAMPO PRÓXIMO, DO ELEMENTO QUE ESTAVA COMO ÚLTIMO, PASSARÁ A APONTAR PARA O ELEMENTO RECÉM CRIADO
+            }
+            pi->topo=no;//ASSIM SENDO, O CAMPO TOPO APONTARÁ PARA O ELEMENTO NO (QUE ACABOU DE SER CRIADO)
+            printf("\nALUNO INSERIDO\n\n");
+            mostrar(pi);
+        }
+        else  //SE MINHA PILHA NAO ESTIVER ALOCADA...
+        {
+            printf("\nERRO DE ALOCACAO\n");
+        }
+    }
+}
+
+
+//FUNÇAO QUE REMOVERÁ UM ELEMENTO DA PILHA. VALE LEMBRAR QUE SÓ SERÃO REMOVIDOS ELEMENTOS:
+//QUANDO A PILHA NAO ESTIVER VAZIA; E SEMPRE REMOVERÁ O PRIMEIRO ELEMENTO (piFO)
+
+void remover(PILHA *pi)
+{
+    if(pi==NULL) //SE A PILHA NAO FOR ALOCADA...
+    {
+        printf("\nERRO DE ALOCACAO\n");
+    }
+    else  //PILHA ALOCADA...
+    {
+        if(pi->topo==NULL) //SE O CAMPO INÍCIO APONTAR PARA NULL, SIGNIpiCA QUE A PILHA ESTÁ VAZIA
+        {
+            printf("\nPILHA VAZIA\n");
+        }
+        else  //SE NAO ESTIVER VAZIA...
+        {
+            ELEM *no = pi->topo;//CRIA-SE UM ELEMENTO AUXILIZAR QUE RECEBE O ENDEREÇO DO PRIMEIRO ELEMENTO DA PILHA
+            pi->topo = pi->topo->prox;//NESTE PONTO, O CAMPO INÍCIO DA PILHA (O NÓ)
+            //RECEBERÁ O ENDEREÇO DO PRÓXIMO ELEMENTO (O ELEMENTO QUE ESTARÁ NA SEGUNDA POSIÇÃO DA PILHA)
+            char nome[30];
+            int m = no->dados.mat;
+            strcpy(nome,no->dados.nome);
+            free(no);//NESTE PONTO, O ESPAÇO ALOCADO PARA O PRIMEOR ELEMENTO SERÁ LIBERADO
+            printf("\nALUNO %s, COM MATRICULA %d REMOVIDO\n\n",nome,m);
+            mostrar(pi);
+        }
+    }
+}
+
+
+
+//FUNÇÃO QUE APRESENTARÁ OS ALUNOS ARMAZENADOS NA PILHA
+void mostrar(PILHA *pi)
+{
+    if(pi == NULL)  //SE A PILHA NAO FOR ALOCADA....
+    {
+        printf("\nERRO DE ALOCACAO\n");
+    }
+    else    //PILHA ALOCADA...
+    {
+        if(pi->topo==NULL)  //SE O CAMPO TOPO FOR IGUAL NULL, A PILHA ESTARÁ VAZIA. PODERIA TESTAR TAMBÉM A POSIÇÃO INICIAL. TANTO FAZ...
+        {
+            printf("\nPILHA VAZIA\n");
+        }
+        else    //HÁ ELEMENTO NA PILHA
+        {
+            ELEM* no = pi->topo;//CRIA-SE UM ELEMENTO AUXILIAR PARA PERCORRER A PILHA. RECERÁ O ENDEREÇO DO PRIMEIRO ELEMENTO DA PILHA
+            while(no != NULL)
+            {
+                printf("MATRICULA: %d\n",no->dados.mat);//APRESENTA A MATRICULA DO ALUNO
+                printf("NOME: %s\n",no->dados.nome);//APRESENTA O NOME DO ALUNO
+                printf("NOTAS: %.2f %.2f\n",no->dados.n1, no->dados.n2);//AS NOTAS 1 E 2 DO ALUNO
+                printf("MEDIA: %.2f\n",no->dados.media);//APRESENTA A MEDIA DO ALUNO
+                printf("-------------------------------\n");//IMPRIME UMA LINHA DIVISÓRIA
+                no = no->prox;//O ELEMENTO AUXILIAR RECEBE O ENDEREÇO DO PRÓXIMO ELEMENTO
+            }//SE ELE FOR DIFERENTE DE NULL, SIGNIpiCA QUE HÁ ELEMENTO NA PILHA. O PROCESSO DE IMPRESSÃO SE REPETE
+            printf("\nPILHA COM %d ELEMENTO(S)\n",tamanho(pi));
+        }
+    }
+}
+
+
+//FUNÇÃO QUE DESALOCA O ESPAÇO NA MEMÓRIA DO S.O.
+void liberar(PILHA *pi)
+{
+    if(pi !=NULL)
+    {
+        ELEM * no;//CRIA UM PONTEIRO DE UMA ESTRUTURA ELEMENTO, PARA SERVIR DE AUXILIAR PARA O PROCESSO DE LIBERAÇÃO
+        while(pi->topo!=NULL) //VERIFICA SE A POSIÇÃO INICIA TEM ALGUMA ESTRUTURA. CASO TENHA, ENTRA NO IF
+        {
+            no = pi->topo;//A ESTRUTURA AUXLIAR RECEBE O ENDEREÇO DO PRIMEIRO ELEMENTO DA MINHA PILHA.
+            pi->topo = pi->topo->prox;//A POSIÇÃO DE TOPO DA MINHA PILHA PASSA A APONTAR AO VALOR QUE ESTAVA NO CAMPO PROXÍMO (APONTARÁ AO SEGUNO ELEMENTO)
+            free(no);//COM A POSIÇÃO INICIAL APONTANDO PARA SEGUNDA POSIÇÃO, A PRIMEIRA (QUE ESTAVA GUARDADA NO ELEMENTO AUXILIAR) SERÁ LIBERADA.
+        }//SE A POSIÇÃO DE TOPO APONTAR PARA NULL, SIGINIpiCA QUE NAO HÁ MAIS ELEMENTOS NA MINHA PILHA.
+        free(pi);//O ESPAÇO DE MEMÓRIA ALOCADO PARA MINHA PILHA É LIBERADO.
+    }
+}
+
+//FUNÇÃO ABAIXO RETORNA UM INTEIRO COM A QUANTIDADE DE ELEMENTOS DA MINHA PILHA
+int tamanho(PILHA *pi)
+{
+    if(pi==NULL)
+    {
+        return -1;//CASO MINHA PILHA NAO TENHA SIDO ALOCADA NA MEMÓRIA, MINHA FUNÇÃO RETORNARÁ O VALOR -1
+    }
+    int cont=0;//VARIAVEL QUE CONTARÁ A QUANTIDADE DE ELEMENTOS
+    ELEM *no = pi->topo;//CRIA UM ELEMENTO AUXILIAR PARA PERCORRER MINHA PILHA. DESTA FORMA, CADA PASSO DADO PELO ELEMENTO AXULIAR SERÁ UM ELEMENTO DA MINHA PILHA
+    while(no != NULL) //ENQUANTO O ELEMENTO AUXILIAR NAO APONTAR PARA NULL,
+    {
+        cont++;//INCREMENTA A MINHA PILHA (SE ELE ENTROU NO WHILE NA PRIMEIRA INTERAÇÃO, SIGNIpiCA QUE HÁ PELO MENOS UM ELEMENTO DA PILHA
+        no= no->prox;//NESTE MOMENTO, NÓ RECEBERA O ENDEREÇO QUE ESTÁ NO CAMPO PRÓXIMO.
+    }//SE ELE FOR IGUAL A NULL. TERMINA O LAÇO. SE NAO, SERÁ CONTABILIZADO UM NOVO ELEMENTO.
+    return cont;//FUNÇÃO RETORNA A QUANTIRADE DE ELEMENTOS
+}
+
+//FUNÇÃO QUE VERIpiCA SE PILHA ESTÁ VAZIA OU NAO
+void vazia(PILHA *pi)
+{
+    int tam = tamanho(pi);//ESTA PARTE PODE SER CONSIDERADA OPCIONAL. APENAS APRESENTARÁ A QUANTIDADE DE ELEMENTOS DA MINHA PILHA (FUNÇÃO TAMANHO)
+    if(pi !=NULL)  //SE A PILHA FOR ALOCADO...
+    {
+        if(pi->topo==NULL)  //VERIpiCA SE O CAMPO topo APONTA PARA NULL. CASO APONTO, A PILHA ESTARÁ VAZIA.
+        {
+            printf("\nPILHA VAZIA\n");
+        }
+        else    //SE NAO APONTAR, PARA NULL, TERÁ ELEMENTOS...
+        {
+            printf("\nPILHA NAO VAZIA\n");
+        }
+        printf("\nPILHA COM %d ELEMENTO(S)\n",tam);//APRESENTA A QUANTIDADE DE ELEMENTOS
+    }
+    else    //CASO MINHA PILHA NAO TENHA SIDO ALOCADA...
+    {
+        printf("\nERRO DE ALOCACAO\n");
+    }
+}
+
+
+//FUNÇÃO DE MENU QUE RETONA A OPÇÃO ESCOLHIDA
+char menu()
+{
+    char op;
+    printf("\t\tPILHA DINAMICA\n");
+    printf("\nI - INSERIR ELEMENTOS\n");
+    printf("M - MOSTRAR ELEMENTOS DA PILHA\n");
+    printf("V - VERIFICAR PILHA VAZIA\n");
+    printf("R - REMOVER ELEMENTOS\n");
+    printf("S - SAIR\n");
+    printf("\nOPCAO: ");
+    scanf("%c",&op);
+    putchar('\n');
+    op=toupper(op);
+    return op;//INTEIRO COM A OPÇÃO ESCOLHIDA
+}
+
+//FUNÇÃO QUE IRÁ LER OS DADOS DO ALUNO E ARMAZENARÁ NA STRUCT ALUNO
+
+//FUNÇÃO MAIN..
+main()
+{
+    char o;//VARIAVEL PARA RECEBER A OPÇÃO DIGITADA PELO USUÁRIO
+    PILHA *pi = criar();//CRIA UM PONTEIRO PARA PILHA, QUE RECEBE O ENDEREÇO DA PILHA RETORNADO PELA FUNÇÃO CRIAR();
+    //O "TIPO" DO PONTEIRO SERÁ UMA ESTRUTURA: STRUCT PILHA.
+    ALUNO al;//CRIA UMA ESTRUTURA DO "TIPO" STRUCT ALUNO.
+    while((o=menu())!='S')
+    {
+        switch(o)
+        {
+        case 'S'://OPCAO PARA TERMINAR O LAÇO E SAIR DO PROGRAMA
+            break;
+        case 'M'://OPÇÃO QUE MOSTRA OS ELEMENTOS DA PILHA
+            system("cls");
+            mostrar(pi);//CHAMA A FUNÇÃO MOSTRAR. PARÂMETRO: ENDEREÇO DA PILHA CRIADA (pi É UM PONTEIRO)
+            break;
+        case 'V':
+            system("cls");
+            vazia(pi);//OPÇÃO EU VERIpiCA SE A PILHA ESTÁ VAZIA.PARÂMETRO: ENDEREÇO DA PILHA CRIADA
+            break;
+        case 'I':
+            system("cls");
+            novoAluno(&al);//CHAMA A FUNÇÃO QUE LER OS CAMPOS DA ESTRUTURA ALUNO. (VEJA QUE SERÁ PASSADO O ENDEREÇO DA ESTRUTURA CRIADA)
+            inserir(pi,al);//CHAMA A FUNÇÃO QUE INSERE UM ELEMENTO NA PILHA. PARÂMENTROS: ENDEREÇO DA PILHA CRIADA E OS DADOS DE ALUNOS RECEM DIGITADOS
+            break;
+        case 'R'://OPÇÃO PARA REMOÇÃO DO PRIMEIRO ELEMENTO DA PILHA.
+            system("cls");
+            remover(pi);//CHAMA A FUNÇÃO DE REMOÇAO. PARÂMETRO: ENDEREÇO DA PILHA CRIADA
+            break;
+        default:
+            printf("OPCAO INVALIDA\n\n");
+        }
+        printf("\n\nPRESSIONE QUALQUER TECLA PARA CONTINUAR...\n\n");
+        fflush(stdin);
+        getchar();
+        system("cls");
+    }
+    liberar(pi); //APÓS SAIR DO LAÇO, SERÁ CHAMADA A FUNÇÃO QUE DESALOCA O ESPAÇO DE MEMÓRIA PARA PILHA.
+}
